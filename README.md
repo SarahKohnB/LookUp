@@ -42,10 +42,11 @@ A modelagem é composta por:
 
 Os wireframes representam a organização visual da nossa solução em um aplicativo de celular e futuramente adaptado para mobile também. Serão utilizados para definir a interface que apresentará os resultados das detecções realizadas pela câmera, para que o gestor possaa ser notificado quando o detector captar que algum funcionário não está equipado corretamente.
 
-![Wireframe da tela principal](./1.png)
+![Wireframe da tela principal com alerta](./1.png)
+Essa imagem representa um alerta de que alguém não está utilizando EPI e o gestor foi notificado de tal ocorrido pelo próprio celular.
 
-![Wireframe da tela principal](./2.png)
-
+![Wireframe da tela principal sem alertas](./2.png)
+Essa imagem mostra a mesma tela porém sem nenhuma notificação até o momento.
 ---
 
 # 🧪 Protótipos Iniciais
