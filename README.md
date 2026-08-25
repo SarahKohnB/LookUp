@@ -6,7 +6,7 @@ Este projeto tem como objetivo desenvolver uma solução de visão computacional
 
 A solução utiliza uma webcam para capturar imagens em tempo real e um modelo de Inteligência Artificial para realizar a detecção dos objetos presentes na imagem.
 
-O projeto está sendo desenvolvido de forma incremental, por meio de testes com diferentes modelos de detecção, buscando encontrar uma solução capaz de identificar os principais EPIs necessários para o sistema.
+Até o momento (25/08/2026) o projeto está passando por testes com diferentes modelos de detecção, buscando encontrar uma solução capaz de identificar os principais EPIs necessários para o sistema.
 
 ---
 
