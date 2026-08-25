@@ -42,7 +42,8 @@ A modelagem é composta por:
 
 Os wireframes representam a organização visual da solução e serão utilizados para definir a interface que apresentará os resultados das detecções realizadas pela câmera.
 
-Os wireframes serão adicionados posteriormente nesta seção.
+![Wireframe da tela principal](./1.png)
+![Wireframe da tela principal](./2.png)
 
 <!-- Inserir aqui as imagens dos wireframes -->
 
