@@ -125,14 +125,14 @@ Até o momento, o Protótipo 3 apresentou os resultados mais promissores entre o
 
 ## 📊 Comparação dos Protótipos
 
-| EPI / Objeto | Protótipo 1 | Protótipo 2 | Protótipo 3 |
-|---|---|---|---|
-| 👤 Pessoa | — | — | ✅ |
-| 🪖 Capacete | ✅ | ✅ | ✅ |
-| 🦺 Roupa de segurança | ❌ | ✅ | ✅ |
-| 🥽 Óculos de proteção | ❌ | ❌ | ✅ |
-| 🧤 Luvas | ❌ | ❌ | ✅ |
-| 😷 Máscara | ❌ | ❌ | 🔄 Em teste |
+| EPI / Objeto             | Protótipo 1 | Protótipo 2 | Protótipo 3 |
+| ------------------------ | ------------ | ------------ | ------------ |
+| 👤 Pessoa                | —           | —           | ✅           |
+| 🪖 Capacete              | ✅           | ✅           | ✅           |
+| 🦺 Roupa de segurança   | ❌           | ✅           | ✅           |
+| 🥽 Óculos de proteção | ❌           | ❌           | ✅           |
+| 🧤 Luvas                 | ❌           | ❌           | ✅           |
+| 😷 Máscara              | ❌           | ❌           | 🔄 Em teste  |
 
 **Legenda:**
 
@@ -188,3 +188,6 @@ O funcionamento inicial da solução pode ser representado pelo seguinte fluxo:
               │ Exibição do         │
               │ resultado            │
               └─────────────────────┘
+
+              Para rodar no terminal: entre na pasta e cole py teste_prototipo3.py
+```
