@@ -24,6 +24,13 @@ epis_obrigatorios = [
     "glasses",
     "mask"
 ]
+nomes_epis = {
+    "helmet": "Capacete",
+    "vest": "Colete",
+    "gloves": "Luvas",
+    "glasses": "Oculos",
+    "mask": "Mascara"
+}
 
 print("Abrindo webcam...")
 
@@ -86,7 +93,8 @@ while True:
         )
 
         # Nome e confiança
-        texto = f"{nome} {confianca:.2f}"
+        nome_exibicao = nomes_epis.get(nome, nome)
+        texto = f"{nome_exibicao} {confianca:.2f}"
 
         cv2.putText(
             imagem_resultado,
@@ -98,57 +106,84 @@ while True:
             2
         )
 
+    ,# --------------------------------
+    # PAINEL DE STATUS DOS EPIs
     # --------------------------------
-    # VERIFICAÇÃO DOS EPIs
-    # --------------------------------
+
+    altura, largura = imagem_resultado.shape[:2]
+
+    # Área do painel
+    painel_x = largura - 260
+    painel_y = 10
+    painel_largura = 250
+    painel_altura = 250
+
+    # Fundo do painel
+    cv2.rectangle(
+        imagem_resultado,
+        (painel_x, painel_y),
+        (largura - 10, painel_y + painel_altura),
+        (40, 40, 40),
+        -1
+    )
+
+    # Borda do painel
+    cv2.rectangle(
+        imagem_resultado,
+        (painel_x, painel_y),
+        (largura - 10, painel_y + painel_altura),
+        (180, 180, 180),
+        2
+    )
 
     if pessoa_detectada:
 
-        y = 30
-
+        # Título
         cv2.putText(
             imagem_resultado,
-            "PESSOA DETECTADA",
-            (10, y),
+            "STATUS DO EPI",
+            (painel_x + 15, painel_y + 30),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 255, 0),
+            0.65,
+            (255, 255, 255),
             2
         )
 
-        y += 30
+        y = painel_y + 60
 
         # Verifica cada EPI
         for epi in epis_obrigatorios:
 
             if epi in epis_detectados:
                 status = "OK"
+                cor = (0, 255, 0)
             else:
                 status = "NAO DETECTADO"
+                cor = (0, 0, 255)
 
-            texto = f"{epi}: {status}"
+            texto = f"{nomes_epis[epi]}: {status}"
 
             cv2.putText(
                 imagem_resultado,
                 texto,
-                (10, y),
+                (painel_x + 15, y),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 255, 0) if status == "OK" else (0, 0, 255),
+                0.48,
+                cor,
                 2
             )
 
-            y += 25
+            y += 30
 
-        # Verifica se todos foram detectados
+        # Status final
         if all(epi in epis_detectados for epi in epis_obrigatorios):
 
             cv2.putText(
                 imagem_resultado,
                 "EPI COMPLETO",
-                (10, y + 10),
+                (painel_x + 15, y + 10),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
+                0.65,
                 (0, 255, 0),
                 2
             )
@@ -158,9 +193,9 @@ while True:
             cv2.putText(
                 imagem_resultado,
                 "EPI INCOMPLETO",
-                (10, y + 10),
+                (painel_x + 15, y + 10),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
+                0.65,
                 (0, 0, 255),
                 2
             )
@@ -169,10 +204,10 @@ while True:
 
         cv2.putText(
             imagem_resultado,
-            "NENHUMA PESSOA DETECTADA",
-            (10, 30),
+            "NENHUMA PESSOA",
+            (painel_x + 15, painel_y + 30),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
+            0.55,
             (0, 255, 255),
             2
         )
