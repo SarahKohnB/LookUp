@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Monitoramento de EPI</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Monitoramento de EPI</h1>
+
+        <p>
+            Painel de acompanhamento de segurança
+        </p>
+
+    </header>
+
+
+    <main>
+
+        <section class="status">
+
+            <h2>Status do sistema</h2>
+
+            <div class="status-online">
+
+                🟢 Sistema de monitoramento ativo
+
+            </div>
+
+        </section>
+
+
+        <section class="teste">
+
+            <h2>Teste do sistema</h2>
+
+            <p>
+                Clique no botão abaixo para simular
+                um alerta de EPI incompleto.
+            </p>
+
+            <a href="/teste-alerta" class="botao-alerta">
+                🚨 TESTAR ALERTA
+            </a>
+
+        </section>
+
+
+        <section>
+
+            <h2>Notificações recentes</h2>
+
+            <div id="notificacoes">
+
+                {% if notificacoes %}
+
+                    {% for notificacao in notificacoes %}
+
+                        <div class="notificacao">
+
+                            <h3>
+                                🔴 {{ notificacao.tipo }}
+                            </h3>
+
+                            <p>
+                                <strong>Data:</strong>
+                                {{ notificacao.data }}
+                            </p>
+
+                            <div class="epis">
+
+                                <span>
+                                    Capacete:
+                                    {{ notificacao.capacete }}
+                                </span>
+
+                                <span>
+                                    Colete:
+                                    {{ notificacao.colete }}
+                                </span>
+
+                                <span>
+                                    Luvas:
+                                    {{ notificacao.luvas }}
+                                </span>
+
+                                <span>
+                                    Óculos:
+                                    {{ notificacao.oculos }}
+                                </span>
+
+                                <span>
+                                    Máscara:
+                                    {{ notificacao.mascara }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="sem-notificacoes">
+
+                        <p>
+                            Nenhuma notificação recebida.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        // Atualiza as notificações automaticamente
+        setInterval(function() {
+
+            fetch("/notificacoes")
+
+                .then(response => response.json())
+
+                .then(dados => {
+
+                    const container =
+                        document.getElementById("notificacoes");
+
+                    if (dados.length === 0) {
+
+                        container.innerHTML = `
+                            <div class="sem-notificacoes">
+                                <p>
+                                    Nenhuma notificação recebida.
+                                </p>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    container.innerHTML = "";
+
+                    dados.forEach(notificacao => {
+
+                        container.innerHTML += `
+
+                            <div class="notificacao">
+
+                                <h3>
+                                    🔴 ${notificacao.tipo}
+                                </h3>
+
+                                <p>
+                                    <strong>Data:</strong>
+                                    ${notificacao.data}
+                                </p>
+
+                                <div class="epis">
+
+                                    <span>
+                                        Capacete:
+                                        ${notificacao.capacete}
+                                    </span>
+
+                                    <span>
+                                        Colete:
+                                        ${notificacao.colete}
+                                    </span>
+
+                                    <span>
+                                        Luvas:
+                                        ${notificacao.luvas}
+                                    </span>
+
+                                    <span>
+                                        Óculos:
+                                        ${notificacao.oculos}
+                                    </span>
+
+                                    <span>
+                                        Máscara:
+                                        ${notificacao.mascara}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    });
+
+                });
+
+        }, 2000);
+
+    </script>
+
+</body>
+
+</html>
