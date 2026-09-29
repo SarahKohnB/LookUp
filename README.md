@@ -191,3 +191,11 @@ O funcionamento inicial da solução pode ser representado pelo seguinte fluxo:
 
               Para rodar no terminal: entre na pasta e cole py teste_prototipo3.py
 ```
+##Intalações necessárias
+
+*baixar o torch:*
+py -m pip install torch torchvision
+
+*baixar o ultralytics:*
+py -m pip install ultralytics
+

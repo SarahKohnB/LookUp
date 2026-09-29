@@ -24,6 +24,7 @@ epis_obrigatorios = [
     "glasses",
     "mask"
 ]
+
 nomes_epis = {
     "helmet": "Capacete",
     "vest": "Colete",
@@ -106,7 +107,7 @@ while True:
             2
         )
 
-    ,# --------------------------------
+    # --------------------------------
     # PAINEL DE STATUS DOS EPIs
     # --------------------------------
 
@@ -138,6 +139,9 @@ while True:
 
     if pessoa_detectada:
 
+        # Guarda o status de cada EPI
+        status_epis = {}
+
         # Título
         cv2.putText(
             imagem_resultado,
@@ -161,6 +165,9 @@ while True:
                 status = "NAO DETECTADO"
                 cor = (0, 0, 255)
 
+            # Guarda o status para utilizar no alerta
+            status_epis[epi] = status
+
             texto = f"{nomes_epis[epi]}: {status}"
 
             cv2.putText(
@@ -175,8 +182,32 @@ while True:
 
             y += 30
 
-        # Status final
-        if all(epi in epis_detectados for epi in epis_obrigatorios):
+        # --------------------------------
+        # CRIA O ALERTA
+        # --------------------------------
+
+        if all(status == "OK" for status in status_epis.values()):
+            tipo_alerta = "EPI COMPLETO"
+        else:
+            tipo_alerta = "EPI INCOMPLETO"
+
+        alerta = {
+            "tipo": tipo_alerta,
+            "capacete": status_epis["helmet"],
+            "colete": status_epis["vest"],
+            "luvas": status_epis["gloves"],
+            "oculos": status_epis["glasses"],
+            "mascara": status_epis["mask"]
+        }
+
+        # Mostra o alerta no terminal
+        print(alerta)
+
+        # --------------------------------
+        # STATUS FINAL NA TELA
+        # --------------------------------
+
+        if tipo_alerta == "EPI COMPLETO":
 
             cv2.putText(
                 imagem_resultado,
