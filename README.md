@@ -189,7 +189,7 @@ O funcionamento inicial da solução pode ser representado pelo seguinte fluxo:
               │ resultado            │
               └─────────────────────┘
 
-              Para rodar no terminal: entre na pasta e cole py teste_prototipo3.py
+              Para rodar no terminal: entre na pasta e cole py teste_prototipo4.py
 ```
 ##Intalações necessárias
 
