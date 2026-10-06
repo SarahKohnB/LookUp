@@ -37,9 +37,19 @@ print("Abrindo webcam...")
 
 camera = cv2.VideoCapture(1)
 
+# Define a resolução da webcam
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
 if not camera.isOpened():
     print("Não foi possível abrir a webcam.")
     exit()
+
+# Mostra a resolução que a webcam realmente conseguiu utilizar
+largura_camera = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+altura_camera = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+print(f"Resolução da webcam: {largura_camera}x{altura_camera}")
 
 print("Protótipo 4 iniciado!")
 print("Pressione Q para fechar.")
