@@ -1,201 +1,248 @@
-# 🦺 Sistema Inteligente de Detecção de EPIs
+# 🦺 Look Up — Sistema Inteligente de Detecção de EPIs
 
 ## 📌 Sobre o Projeto
 
-Este projeto tem como objetivo desenvolver uma solução de visão computacional capaz de identificar Equipamentos de Proteção Individual (EPIs) utilizados por pessoas em ambientes de trabalho.
+O **Look Up** é um projeto que utiliza visão computacional e Inteligência Artificial para detectar Equipamentos de Proteção Individual (EPIs) em ambientes de trabalho.
 
-A solução utiliza uma webcam para capturar imagens em tempo real e um modelo de Inteligência Artificial para realizar a detecção dos objetos presentes na imagem.
+O sistema utiliza uma webcam para capturar imagens em tempo real e um modelo de IA para identificar pessoas e equipamentos de proteção. Além disso, possui uma aplicação web que permite acompanhar as detecções e visualizar alertas quando são identificadas situações de EPI incompleto.
 
-Até o momento (25/08/2026) o projeto está passando por testes com diferentes modelos de detecção, buscando encontrar uma solução capaz de identificar os principais EPIs necessários para o sistema.
+A proposta é auxiliar o gestor no acompanhamento da segurança dos trabalhadores, facilitando a identificação de situações que precisam de atenção.
 
----
+## 🎯 Objetivos
 
-# 🎯 Objetivo
+O principal objetivo é desenvolver uma solução capaz de identificar a presença de EPIs e informar quando uma pessoa não estiver utilizando os equipamentos de proteção necessários.
 
-O objetivo principal do projeto é desenvolver um sistema capaz de utilizar uma câmera para identificar uma pessoa e verificar a presença de Equipamentos de Proteção Individual.
-
-Entre os EPIs considerados inicialmente estão:
+Os equipamentos considerados no projeto são:
 
 - 🪖 Capacete de segurança;
-- 🦺 Roupa de segurança;
+- 🦺 Colete ou roupa de segurança;
 - 🥽 Óculos de proteção;
 - 🧤 Luvas;
 - 😷 Máscara.
 
-A solução deverá futuramente permitir identificar quando um ou mais equipamentos obrigatórios não estiverem presentes.
+O projeto também busca oferecer uma interface simples para que o gestor possa acompanhar os resultados das detecções e consultar os alertas gerados pelo sistema.
 
----
+## ⚙️ Tecnologias utilizadas
 
-# 🧩 MODELAGEM
+- **Python:** linguagem utilizada no desenvolvimento da aplicação e no processamento das imagens.
+- **OpenCV:** utilizado para acessar a webcam e trabalhar com imagens e vídeos.
+- **YOLO / Inteligência Artificial:** utilizado na detecção de pessoas e equipamentos de proteção.
+- **HTML e CSS:** utilizados na construção e estilização da interface web.
+- **Flask:** utilizado para disponibilizar a aplicação web em Python.
 
-A equipe realizou uma modelagem inicial da solução antes do desenvolvimento, buscando definir como o sistema funcionará e quais componentes serão necessários.
+## 🖥️ Funcionalidades do sistema
 
-A modelagem é composta por:
+- Captura de imagens por meio de uma webcam;
+- Detecção de pessoas e EPIs utilizando Inteligência Artificial;
+- Verificação dos equipamentos identificados;
+- Identificação de situações em que os EPIs estão incompletos;
+- Exibição das detecções na interface web;
+- Geração e exibição de alertas para acompanhamento do gestor;
+- Tela de login para acesso ao sistema.
 
-- Wireframes;
-- Protótipos iniciais;
-- Arquitetura inicial da solução.
+Os resultados dependem da precisão do modelo de IA e das condições em que as imagens são capturadas, como iluminação, distância e posição da pessoa.
 
----
+## 📸 Prints das principais telas
 
-## 🖼️ Wireframes
+Esta seção será utilizada para apresentar capturas de tela da aplicação em funcionamento Web e Mobile.
 
-Os wireframes representam a organização visual da nossa solução em um aplicativo de celular e futuramente adaptado para mobile também. Serão utilizados para definir a interface que apresentará os resultados das detecções realizadas pela câmera, para que o gestor possaa ser notificado quando o detector captar que algum funcionário não está equipado corretamente.
+### 1. Tela de login
 
-![Wireframe da tela principal com alerta](./1.png) Essa imagem representa um alerta de que alguém não está utilizando EPI e o gestor foi notificado de tal ocorrido pelo próprio celular.
+<!-- Adicione aqui o print da tela de login. -->
 
-![Wireframe da tela principal sem alertas](./2.png) Essa imagem mostra a mesma tela porém sem nenhuma notificação até o momento.
+![Tela de login](./prints/tela-login.png)
 
----
+### 2. Tela Mobile (Com Aviso)
 
-# 🧪 Protótipos Iniciais
+<!-- Adicione aqui o print da tela principal com a webcam e as detecções. -->
 
-Antes da definição do modelo utilizado na solução, foram realizados testes com diferentes modelos de Inteligência Artificial.
+![Tela principal](./images/1.png)
 
-O objetivo dos protótipos foi verificar quais modelos apresentavam melhor capacidade de identificar os Equipamentos de Proteção Individual necessários para o projeto.
+### 3. Tela Mobile (Sem Aviso)
 
-Foram desenvolvidos três protótipos iniciais.
+<!-- Adicione aqui o print mostrando a identificação dos equipamentos de proteção. -->
 
----
+![Detecção de EPIs](./images/2.png)
 
-## 🔹 Protótipo 1
+### 4. Tela Web (Com Aviso)
 
-O primeiro protótipo utilizou um modelo inicial de detecção de objetos aplicado à webcam.
+<!-- Adicione aqui o print mostrando os alertas de EPI incompleto. -->
 
-Durante os testes, o modelo apresentou capacidade de identificar principalmente o capacete de segurança.
+![Alertas de EPIs](./images/3.png)
 
-Entretanto, apresentou dificuldades para identificar outros equipamentos, como:
+### 5. Tela Web (Sem Aviso)
 
-- Óculos de proteção;
-- Luvas;
-- Roupa de segurança.
+<!-- Adicione aqui o print da tela adicional. -->
 
-Apesar das limitações, o primeiro protótipo foi importante para validar o funcionamento inicial da webcam integrada ao modelo de Inteligência Artificial.
+![Tela adicional](./images/4.png)
 
-### Resultado
+## 🧩 Modelagem do projeto
 
-O modelo conseguiu demonstrar que era possível utilizar a webcam para realizar detecções em tempo real, porém apresentou limitações na quantidade de EPIs identificados.
+Antes do desenvolvimento, foi realizada uma modelagem inicial para organizar a estrutura e o funcionamento da solução.
 
----
+Essa etapa incluiu:
 
-## 🔹 Protótipo 2
+- Wireframes das interfaces;
+- Desenvolvimento de protótipos iniciais;
+- Definição da arquitetura inicial da solução.
 
-Após os testes realizados no primeiro protótipo, foi utilizado um segundo modelo de detecção de EPIs.
+## 🧪 Protótipos iniciais
 
-Esse modelo apresentou uma melhoria em relação ao primeiro protótipo, conseguindo identificar:
+Durante o desenvolvimento, foram testados três modelos de detecção para avaliar quais apresentavam melhores resultados na identificação dos EPIs necessários.
 
-- 🪖 Capacete;
-- 🦺 Roupa de segurança.
+### Protótipo 1
 
-Entretanto, durante os testes realizados, os óculos e as luvas ainda não foram identificados de forma adequada.
+O primeiro protótipo utilizou um modelo inicial de detecção de objetos integrado à webcam.
 
-### Resultado
+Nos testes, o modelo identificou principalmente o capacete de segurança, mas apresentou dificuldades para reconhecer outros equipamentos, como óculos, luvas e roupa de segurança.
 
-O segundo protótipo apresentou uma evolução em relação ao primeiro, principalmente pela identificação da roupa de segurança.
+**Resultado:** permitiu validar o funcionamento inicial da webcam integrada à Inteligência Artificial, mas apresentou limitações na detecção dos equipamentos.
 
-Porém, ainda não atendia completamente às necessidades do projeto.
+### Protótipo 2
 
----
+O segundo protótipo utilizou outro modelo de detecção de EPIs, apresentando melhorias em relação ao primeiro.
 
-## 🔹 Protótipo 3
+O modelo conseguiu identificar o capacete e a roupa de segurança, mas continuou apresentando dificuldades na identificação de óculos e luvas.
 
-O terceiro protótipo utilizou um modelo YOLOv5 voltado para detecção de Equipamentos de Proteção Individual.
+**Resultado:** apresentou evolução em relação ao primeiro protótipo, mas ainda não atendia completamente às necessidades do projeto.
 
-O modelo foi integrado à webcam e testado em diferentes imagens e situações.
+### Protótipo 3
 
-Durante os testes realizados, foi possível identificar:
+O terceiro protótipo utilizou um modelo YOLOv5 voltado para a detecção de Equipamentos de Proteção Individual.
 
-- 👤 Pessoa;
-- 🪖 Capacete;
-- 🦺 Roupa de segurança;
-- 🥽 Óculos de proteção;
-- 🧤 Luvas.
+Nos testes, foi possível identificar pessoas, capacetes, roupas de segurança, óculos de proteção e luvas. A detecção de máscaras apresentou inconsistências, e também foram observadas algumas classificações incorretas.
 
-A identificação de óculos e luvas representou uma evolução importante em relação aos protótipos anteriores, pois esses equipamentos não estavam sendo identificados adequadamente nos testes anteriores.
+**Resultado:** foi o modelo que apresentou os resultados mais promissores entre os três protótipos iniciais e serviu como base para a continuidade do desenvolvimento.
 
-A identificação da máscara ainda está em fase de testes.
+### Comparação dos protótipos
 
-Também foram observados casos de possíveis classificações incorretas, como uma situação em que uma máscara foi identificada como capacete. Por isso, novos testes ainda serão realizados para avaliar a precisão do modelo.
+| EPI / Objeto          | Protótipo 1                    | Protótipo 2                    | Protótipo 3       |
+| --------------------- | ------------------------------- | ------------------------------- | ------------------ |
+| Pessoa                | Não avaliado                   | Não avaliado                   | Identificado       |
+| Capacete              | Identificado                    | Identificado                    | Identificado       |
+| Roupa de segurança   | Dificuldades                    | Identificada                    | Identificada       |
+| Óculos de proteção | Dificuldades                    | Dificuldades                    | Identificados      |
+| Luvas                 | Dificuldades                    | Dificuldades                    | Identificadas      |
+| Máscara              | Não identificada adequadamente | Não identificada adequadamente | Em testes iniciais |
 
-### Resultado
+> Os resultados correspondem aos testes iniciais realizados pela equipe. A identificação pode variar de acordo com as condições da imagem e o posicionamento dos equipamentos.
 
-Até o momento, o Protótipo 3 apresentou os resultados mais promissores entre os modelos testados e foi definido como a principal base para a continuidade do desenvolvimento da solução.
+## 🏗️ Arquitetura da solução
 
----
+O sistema utiliza uma webcam para capturar as imagens, um computador para processá-las e uma aplicação desenvolvida em Python integrada a um modelo de Inteligência Artificial.
 
-## 📊 Comparação dos Protótipos
+Após a detecção, os resultados são utilizados pela aplicação para apresentar as informações na interface web e exibir alertas relacionados a EPIs incompletos.
 
-| EPI / Objeto             | Protótipo 1 | Protótipo 2 | Protótipo 3 |
-| ------------------------ | ------------ | ------------ | ------------ |
-| 👤 Pessoa                | —           | —           | ✅           |
-| 🪖 Capacete              | ✅           | ✅           | ✅           |
-| 🦺 Roupa de segurança   | ❌           | ✅           | ✅           |
-| 🥽 Óculos de proteção | ❌           | ❌           | ✅           |
-| 🧤 Luvas                 | ❌           | ❌           | ✅           |
-| 😷 Máscara              | ❌           | ❌           | 🔄 Em teste  |
-
-**Legenda:**
-
-- ✅ Identificado nos testes;
-- ❌ Não identificado adequadamente;
-- 🔄 Ainda em testes;
-- — Não avaliado no protótipo.
-
-> Os resultados apresentados correspondem aos testes iniciais realizados pela equipe. O desempenho da detecção pode variar de acordo com iluminação, distância da câmera, qualidade da imagem, posição da pessoa e características dos EPIs.
-
----
-
-# 🏗️ Arquitetura Inicial da Solução
-
-A arquitetura inicial da solução é composta por uma webcam, um computador responsável pelo processamento das imagens, uma aplicação desenvolvida em Python e um modelo de Inteligência Artificial responsável pela detecção dos objetos.
-
-O funcionamento inicial da solução pode ser representado pelo seguinte fluxo:
+Fluxo de funcionamento:
 
 ```text
-                  ┌──────────────┐
-                  │    WEBCAM    │
-                  └──────┬───────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Captura da imagem   │
-              │    em tempo real    │
-              └──────────┬──────────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Aplicação em Python │
-              └──────────┬──────────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Modelo de IA / YOLO │
-              └──────────┬──────────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Detecção dos objetos│
-              └──────────┬──────────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Identificação dos   │
-              │ EPIs detectados     │
-              └──────────┬──────────┘
-                         │
-                         ▼
-              ┌─────────────────────┐
-              │ Exibição do         │
-              │ resultado            │
-              └─────────────────────┘
-
-              Para rodar no terminal: entre na pasta e cole py teste_prototipo4.py
+             ┌─────────────────┐
+             │     Webcam      │
+             └────────┬────────┘
+                      │
+                      ▼
+             ┌─────────────────┐
+             │ Captura de      │
+             │ imagens         │
+             └────────┬────────┘
+                      │
+                      ▼
+             ┌─────────────────┐
+             │ Processamento   │
+             │ em Python       │
+             └────────┬────────┘
+                      │
+                      ▼
+             ┌─────────────────┐
+             │ Modelo de IA    │
+             │ para detecção   │
+             └────────┬────────┘
+                      │
+                      ▼
+             ┌─────────────────┐
+             │ Verificação dos │
+             │ EPIs detectados │
+             └────────┬────────┘
+                      │
+                      ▼
+             ┌─────────────────┐
+             │ Aplicação web   │
+             │ e alertas       │
+             └─────────────────┘
 ```
-##Intalações necessárias
 
-*baixar o torch:*
+## 💻 Como executar o projeto
+
+### 1. Pré-requisitos
+
+Antes de executar o sistema, é necessário ter instalado:
+
+- Python;
+- Visual Studio Code ou outro editor de código;
+- Uma webcam;
+- As dependências utilizadas pelo projeto;
+- Os arquivos do modelo de Inteligência Artificial.
+
+### 2. Instalar as dependências
+
+Abra o terminal na pasta do projeto e execute os comandos abaixo, conforme as bibliotecas utilizadas no ambiente:
+
+```bash
+py -m pip install opencv-python
+py -m pip install flask
 py -m pip install torch torchvision
-
-*baixar o ultralytics:*
 py -m pip install ultralytics
+```
 
+**Observação:** os comandos acima instalam as bibliotecas listadas, mas o modelo utilizado também pode depender de uma versão específica do PyTorch ou de outras dependências. Se o projeto possuir um arquivo `requirements.txt`, prefira instalar as versões definidas nele.
+
+### 3. Executar o sistema
+
+Abra a pasta do projeto no Visual Studio Code e execute a aplicação pelo terminal, utilizando o arquivo principal do sistema.
+
+```bash
+py app.py
+```
+
+Se o arquivo principal possuir outro nome, substitua `app.py` pelo nome correto.
+
+Depois, acesse no navegador o endereço local informado no terminal pela aplicação Flask.
+
+> Para executar a detecção diretamente pelo protótipo de webcam, o comando utilizado no protótipo 4 é `py teste_prototipo4.py`, executado na pasta correspondente.
+
+## 📁 Organização dos arquivos
+
+A estrutura pode variar conforme a organização atual do repositório. Uma sugestão para organizar os arquivos é:
+
+```text
+Look-Up/
+├── app.py
+├── index.html
+├── README.md
+├── prints/
+│   ├── tela-login.png
+│   ├── tela-principal.png
+│   ├── deteccao-epis.png
+│   └── alertas-epis.png
+├── 1.png
+├── 2.png
+└── arquivos do modelo de IA
+```
+
+Essa estrutura é apenas ilustrativa. Mantenha os arquivos e as pastas nos locais em que realmente estão no seu repositório, especialmente os templates, os arquivos estáticos e os modelos de detecção.
+
+## 🚧 Limitações e melhorias
+
+Durante os testes, foram observadas limitações na identificação de alguns equipamentos, principalmente máscaras e luvas, além da possibilidade de classificações incorretas.
+
+Entre os pontos que podem ser aprimorados estão:
+
+- Melhorar a precisão na detecção dos EPIs;
+- Reduzir falsos positivos e falsos negativos;
+- Realizar testes em diferentes condições de iluminação e posicionamento;
+- Aprimorar a apresentação dos alertas para facilitar o acompanhamento pelo gestor;
+- Evoluir a solução conforme os requisitos do projeto.
+
+## 👥 Equipe
+
+Projeto acadêmico desenvolvido para estudar e aplicar conceitos de visão computacional, Inteligência Artificial e desenvolvimento de aplicações voltadas à segurança do trabalho.
