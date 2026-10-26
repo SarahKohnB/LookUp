@@ -1,80 +1,94 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Monitoramento de EPI</title>
+    <title>LookUp - Monitoramento de EPI</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-
     <header>
-
-        <h1>Monitoramento de EPI</h1>
-
-        <p>
-            Painel de acompanhamento de segurança
-        </p>
-
+        <h1>LookUp</h1>
+        <p>Monitoramento de Equipamentos de Proteção Individual</p>
     </header>
 
-
     <main>
-
-        <section class="status">
-
+        <section>
             <h2>Status do sistema</h2>
 
-            <div class="status-online">
-
-                🟢 Sistema de monitoramento ativo
-
+            <div id="status-sistema" class="status-online">
+                Conectando ao sistema...
             </div>
-
         </section>
 
+        <section>
+            <h2>Monitoramento da webcam</h2>
 
-        <section class="teste">
+            <div class="video-container">
+                <img src="{{ url_for('video_feed') }}"
+                     alt="Vídeo ao vivo da webcam"
+                     id="video-camera">
 
-            <h2>Teste do sistema</h2>
+                <p id="erro-video" hidden>
+                    Aguardando imagem da webcam...
+                </p>
+            </div>
 
-            <p>
-                Clique no botão abaixo para simular
-                um alerta de EPI incompleto.
+            <p class="observacao">
+                A imagem e as detecções são processadas pelo sistema
+                Python e atualizadas automaticamente.
             </p>
+        </section>
 
-            <a href="/teste-alerta" class="botao-alerta">
-                🚨 TESTAR ALERTA
-            </a>
+        <section>
+            <h2>Status atual dos EPIs</h2>
 
+            <div id="status-geral" class="status-geral">
+                Aguardando detecção...
+            </div>
+
+            <div class="lista-epis">
+                <div class="epi">
+                    <span>Capacete</span>
+                    <strong id="helmet">AGUARDANDO</strong>
+                </div>
+
+                <div class="epi">
+                    <span>Colete</span>
+                    <strong id="vest">AGUARDANDO</strong>
+                </div>
+
+                <div class="epi">
+                    <span>Luvas</span>
+                    <strong id="gloves">AGUARDANDO</strong>
+                </div>
+
+                <div class="epi">
+                    <span>Óculos</span>
+                    <strong id="glasses">AGUARDANDO</strong>
+                </div>
+
+                <div class="epi">
+                    <span>Máscara</span>
+                    <strong id="mask">AGUARDANDO</strong>
+                </div>
+            </div>
         </section>
 
 
         <section>
-
             <h2>Notificações recentes</h2>
 
             <div id="notificacoes">
-
                 {% if notificacoes %}
-
                     {% for notificacao in notificacoes %}
-
                         <div class="notificacao">
-
-                            <h3>
-                                🔴 {{ notificacao.tipo }}
-                            </h3>
+                            <h3>{{ notificacao.tipo }}</h3>
 
                             <p>
                                 <strong>Data:</strong>
@@ -82,142 +96,145 @@
                             </p>
 
                             <div class="epis">
-
-                                <span>
-                                    Capacete:
-                                    {{ notificacao.capacete }}
-                                </span>
-
-                                <span>
-                                    Colete:
-                                    {{ notificacao.colete }}
-                                </span>
-
-                                <span>
-                                    Luvas:
-                                    {{ notificacao.luvas }}
-                                </span>
-
-                                <span>
-                                    Óculos:
-                                    {{ notificacao.oculos }}
-                                </span>
-
-                                <span>
-                                    Máscara:
-                                    {{ notificacao.mascara }}
-                                </span>
-
+                                <span>Capacete: {{ notificacao.capacete }}</span>
+                                <span>Colete: {{ notificacao.colete }}</span>
+                                <span>Luvas: {{ notificacao.luvas }}</span>
+                                <span>Óculos: {{ notificacao.oculos }}</span>
+                                <span>Máscara: {{ notificacao.mascara }}</span>
                             </div>
-
                         </div>
-
                     {% endfor %}
-
                 {% else %}
-
                     <div class="sem-notificacoes">
-
-                        <p>
-                            Nenhuma notificação recebida.
-                        </p>
-
+                        Nenhuma notificação recebida.
                     </div>
-
                 {% endif %}
-
             </div>
-
         </section>
-
     </main>
 
-
     <script>
+        const nomesEpis = {
+            helmet: "Capacete",
+            vest: "Colete",
+            gloves: "Luvas",
+            glasses: "Óculos",
+            mask: "Máscara"
+        };
 
-        // Atualiza as notificações automaticamente
-        setInterval(function() {
-
-            fetch("/notificacoes")
-
-                .then(response => response.json())
-
+        function atualizarStatus() {
+            fetch("/api/status")
+                .then(resposta => resposta.json())
                 .then(dados => {
+                    const sistema = document.getElementById("status-sistema");
 
-                    const container =
-                        document.getElementById("notificacoes");
+                    if (dados.camera_online) {
+                        sistema.textContent = "Câmera conectada";
+                        sistema.className = "status-online";
+                    } else {
+                        sistema.textContent = dados.tipo || "Câmera indisponível";
+                        sistema.className = "status-offline";
+                    }
+
+                    const geral = document.getElementById("status-geral");
+                    geral.textContent = dados.tipo || "Aguardando detecção...";
+                    geral.className = "status-geral";
+
+                    if (dados.tipo === "EPI COMPLETO") {
+                        geral.classList.add("completo");
+                    } else if (dados.tipo === "EPI INCOMPLETO") {
+                        geral.classList.add("incompleto");
+                    }
+
+                    for (const epi in nomesEpis) {
+                        const elemento = document.getElementById(epi);
+                        const status = dados.epis[epi] || "AGUARDANDO";
+
+                        elemento.textContent = status;
+                        elemento.className = "";
+
+                        if (status === "OK") {
+                            elemento.classList.add("epi-ok");
+                        } else if (status === "NAO DETECTADO") {
+                            elemento.classList.add("epi-ausente");
+                        } else {
+                            elemento.classList.add("epi-pendente");
+                        }
+                    }
+                })
+                .catch(() => {
+                    const sistema = document.getElementById("status-sistema");
+                    sistema.textContent = "Não foi possível acessar o servidor";
+                    sistema.className = "status-offline";
+                });
+        }
+
+        function atualizarNotificacoes() {
+            fetch("/notificacoes")
+                .then(resposta => resposta.json())
+                .then(dados => {
+                    const container = document.getElementById("notificacoes");
 
                     if (dados.length === 0) {
-
-                        container.innerHTML = `
-                            <div class="sem-notificacoes">
-                                <p>
-                                    Nenhuma notificação recebida.
-                                </p>
-                            </div>
-                        `;
-
+                        container.innerHTML =
+                            '<div class="sem-notificacoes">' +
+                            'Nenhuma notificação recebida.</div>';
                         return;
                     }
 
                     container.innerHTML = "";
 
                     dados.forEach(notificacao => {
+                        const cartao = document.createElement("div");
+                        cartao.className = "notificacao";
 
-                        container.innerHTML += `
+                        const titulo = document.createElement("h3");
+                        titulo.textContent = notificacao.tipo;
 
-                            <div class="notificacao">
+                        const data = document.createElement("p");
+                        data.textContent = "Data: " + notificacao.data;
 
-                                <h3>
-                                    🔴 ${notificacao.tipo}
-                                </h3>
+                        const epis = document.createElement("div");
+                        epis.className = "epis";
 
-                                <p>
-                                    <strong>Data:</strong>
-                                    ${notificacao.data}
-                                </p>
+                        const campos = [
+                            ["Capacete", notificacao.capacete],
+                            ["Colete", notificacao.colete],
+                            ["Luvas", notificacao.luvas],
+                            ["Óculos", notificacao.oculos],
+                            ["Máscara", notificacao.mascara]
+                        ];
 
-                                <div class="epis">
+                        campos.forEach(([nome, valor]) => {
+                            const item = document.createElement("span");
+                            item.textContent = nome + ": " + valor;
+                            epis.appendChild(item);
+                        });
 
-                                    <span>
-                                        Capacete:
-                                        ${notificacao.capacete}
-                                    </span>
-
-                                    <span>
-                                        Colete:
-                                        ${notificacao.colete}
-                                    </span>
-
-                                    <span>
-                                        Luvas:
-                                        ${notificacao.luvas}
-                                    </span>
-
-                                    <span>
-                                        Óculos:
-                                        ${notificacao.oculos}
-                                    </span>
-
-                                    <span>
-                                        Máscara:
-                                        ${notificacao.mascara}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        `;
-
+                        cartao.appendChild(titulo);
+                        cartao.appendChild(data);
+                        cartao.appendChild(epis);
+                        container.appendChild(cartao);
                     });
-
                 });
+        }
 
-        }, 2000);
+        const video = document.getElementById("video-camera");
+        const erroVideo = document.getElementById("erro-video");
 
+        video.addEventListener("error", () => {
+            erroVideo.hidden = false;
+        });
+
+        video.addEventListener("load", () => {
+            erroVideo.hidden = true;
+        });
+
+        atualizarStatus();
+        atualizarNotificacoes();
+
+        setInterval(atualizarStatus, 1000);
+        setInterval(atualizarNotificacoes, 2000);
     </script>
-
 </body>
-
 </html>

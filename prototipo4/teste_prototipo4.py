@@ -1,13 +1,43 @@
+
 import torch
 import cv2
+from pathlib import Path
 
 print("Carregando modelo...")
 
-# Carrega o mesmo modelo utilizado no Protótipo 3
+# Localiza o modelo dentro da pasta prototipo4
+PASTA_ATUAL = Path(__file__).resolve().parent
+CAMINHO_MODELO = PASTA_ATUAL / "prototipo4_ppe.pt"
+
+print(f"Procurando modelo em: {CAMINHO_MODELO}")
+
+if not CAMINHO_MODELO.is_file():
+    raise FileNotFoundError(
+        f"O arquivo do modelo não existe: {CAMINHO_MODELO}"
+    )
+
 modelo = torch.hub.load(
     "ultralytics/yolov5",
     "custom",
-    path="../prototipo3/prototipo3_ppe.pt",
+    path=str(CAMINHO_MODELO),
+    force_reload=False
+)
+
+print("Modelo carregado!")
+
+# Encontra o modelo na mesma pasta deste arquivo
+PASTA_ATUAL = Path(__file__).resolve().parent
+CAMINHO_MODELO = PASTA_ATUAL / "prototipo4_ppe.pt"
+
+if not CAMINHO_MODELO.exists():
+    raise FileNotFoundError(
+        f"Modelo não encontrado: {CAMINHO_MODELO}"
+    )
+
+modelo = torch.hub.load(
+    "ultralytics/yolov5",
+    "custom",
+    path=str(CAMINHO_MODELO),
     force_reload=False
 )
 
@@ -43,226 +73,195 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 if not camera.isOpened():
     print("Não foi possível abrir a webcam.")
+    print("Verifique se a câmera está conectada ou tente o índice 0.")
     exit()
 
-# Mostra a resolução que a webcam realmente conseguiu utilizar
+# Mostra a resolução utilizada
 largura_camera = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
 altura_camera = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 print(f"Resolução da webcam: {largura_camera}x{altura_camera}")
-
 print("Protótipo 4 iniciado!")
 print("Pressione Q para fechar.")
 
-while True:
+try:
+    while True:
 
-    sucesso, imagem = camera.read()
+        sucesso, imagem = camera.read()
 
-    if not sucesso:
-        print("Não foi possível capturar a imagem.")
-        break
+        if not sucesso:
+            print("Não foi possível capturar a imagem.")
+            break
 
-    # Faz a detecção
-    resultados = modelo(imagem)
+        # Faz a detecção
+        resultados = modelo(imagem)
 
-    # Copia a imagem para desenhar os resultados
-    imagem_resultado = imagem.copy()
+        # Copia a imagem para desenhar os resultados
+        imagem_resultado = imagem.copy()
 
-    # Guarda os EPIs encontrados
-    epis_detectados = set()
+        # Guarda os EPIs encontrados
+        epis_detectados = set()
+        pessoa_detectada = False
 
-    pessoa_detectada = False
+        # Percorre todas as detecções
+        for *caixa, confianca, classe in resultados.xyxy[0].tolist():
 
-    # Percorre todas as detecções
-    for *caixa, confianca, classe in resultados.xyxy[0].tolist():
+            confianca = float(confianca)
+            classe = int(classe)
 
-        confianca = float(confianca)
-        classe = int(classe)
+            if confianca < CONF_MIN:
+                continue
 
-        if confianca < CONF_MIN:
-            continue
+            nome = modelo.names[classe].lower()
+            x1, y1, x2, y2 = map(int, caixa)
 
-        nome = modelo.names[classe].lower()
+            # Verifica se encontrou uma pessoa
+            if nome == "person":
+                pessoa_detectada = True
 
-        x1, y1, x2, y2 = map(int, caixa)
+            # Verifica se encontrou algum EPI
+            if nome in epis_obrigatorios:
+                epis_detectados.add(nome)
 
-        # Verifica se encontrou uma pessoa
-        if nome == "person":
-            pessoa_detectada = True
-
-        # Verifica se encontrou algum EPI
-        if nome in epis_obrigatorios:
-            epis_detectados.add(nome)
-
-        # Desenha a caixa
-        cv2.rectangle(
-            imagem_resultado,
-            (x1, y1),
-            (x2, y2),
-            (0, 255, 0),
-            2
-        )
-
-        # Nome e confiança
-        nome_exibicao = nomes_epis.get(nome, nome)
-        texto = f"{nome_exibicao} {confianca:.2f}"
-
-        cv2.putText(
-            imagem_resultado,
-            texto,
-            (x1, max(y1 - 10, 20)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (0, 255, 0),
-            2
-        )
-
-    # --------------------------------
-    # PAINEL DE STATUS DOS EPIs
-    # --------------------------------
-
-    altura, largura = imagem_resultado.shape[:2]
-
-    # Área do painel
-    painel_x = largura - 260
-    painel_y = 10
-    painel_largura = 250
-    painel_altura = 250
-
-    # Fundo do painel
-    cv2.rectangle(
-        imagem_resultado,
-        (painel_x, painel_y),
-        (largura - 10, painel_y + painel_altura),
-        (40, 40, 40),
-        -1
-    )
-
-    # Borda do painel
-    cv2.rectangle(
-        imagem_resultado,
-        (painel_x, painel_y),
-        (largura - 10, painel_y + painel_altura),
-        (180, 180, 180),
-        2
-    )
-
-    if pessoa_detectada:
-
-        # Guarda o status de cada EPI
-        status_epis = {}
-
-        # Título
-        cv2.putText(
-            imagem_resultado,
-            "STATUS DO EPI",
-            (painel_x + 15, painel_y + 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.65,
-            (255, 255, 255),
-            2
-        )
-
-        y = painel_y + 60
-
-        # Verifica cada EPI
-        for epi in epis_obrigatorios:
-
-            if epi in epis_detectados:
-                status = "OK"
-                cor = (0, 255, 0)
-            else:
-                status = "NAO DETECTADO"
-                cor = (0, 0, 255)
-
-            # Guarda o status para utilizar no alerta
-            status_epis[epi] = status
-
-            texto = f"{nomes_epis[epi]}: {status}"
-
-            cv2.putText(
+            # Desenha a caixa
+            cv2.rectangle(
                 imagem_resultado,
-                texto,
-                (painel_x + 15, y),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.48,
-                cor,
-                2
-            )
-
-            y += 30
-
-        # --------------------------------
-        # CRIA O ALERTA
-        # --------------------------------
-
-        if all(status == "OK" for status in status_epis.values()):
-            tipo_alerta = "EPI COMPLETO"
-        else:
-            tipo_alerta = "EPI INCOMPLETO"
-
-        alerta = {
-            "tipo": tipo_alerta,
-            "capacete": status_epis["helmet"],
-            "colete": status_epis["vest"],
-            "luvas": status_epis["gloves"],
-            "oculos": status_epis["glasses"],
-            "mascara": status_epis["mask"]
-        }
-
-        # Mostra o alerta no terminal
-        print(alerta)
-
-        # --------------------------------
-        # STATUS FINAL NA TELA
-        # --------------------------------
-
-        if tipo_alerta == "EPI COMPLETO":
-
-            cv2.putText(
-                imagem_resultado,
-                "EPI COMPLETO",
-                (painel_x + 15, y + 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.65,
+                (x1, y1),
+                (x2, y2),
                 (0, 255, 0),
                 2
             )
 
+            # Nome e confiança
+            nome_exibicao = nomes_epis.get(nome, nome)
+            texto = f"{nome_exibicao} {confianca:.2f}"
+
+            cv2.putText(
+                imagem_resultado,
+                texto,
+                (x1, max(y1 - 10, 20)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 255, 0),
+                2
+            )
+
+        # Painel de status dos EPIs
+        altura, largura = imagem_resultado.shape[:2]
+
+        painel_x = max(10, largura - 260)
+        painel_y = 10
+        painel_altura = 250
+
+        cv2.rectangle(
+            imagem_resultado,
+            (painel_x, painel_y),
+            (largura - 10, painel_y + painel_altura),
+            (40, 40, 40),
+            -1
+        )
+
+        cv2.rectangle(
+            imagem_resultado,
+            (painel_x, painel_y),
+            (largura - 10, painel_y + painel_altura),
+            (180, 180, 180),
+            2
+        )
+
+        if pessoa_detectada:
+
+            status_epis = {}
+
+            cv2.putText(
+                imagem_resultado,
+                "STATUS DO EPI",
+                (painel_x + 15, painel_y + 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.65,
+                (255, 255, 255),
+                2
+            )
+
+            y = painel_y + 60
+
+            for epi in epis_obrigatorios:
+
+                if epi in epis_detectados:
+                    status = "OK"
+                    cor = (0, 255, 0)
+                else:
+                    status = "NAO DETECTADO"
+                    cor = (0, 0, 255)
+
+                status_epis[epi] = status
+                texto = f"{nomes_epis[epi]}: {status}"
+
+                cv2.putText(
+                    imagem_resultado,
+                    texto,
+                    (painel_x + 15, y),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.48,
+                    cor,
+                    2
+                )
+
+                y += 30
+
+            # Cria o alerta
+            if all(status == "OK" for status in status_epis.values()):
+                tipo_alerta = "EPI COMPLETO"
+                cor_alerta = (0, 255, 0)
+            else:
+                tipo_alerta = "EPI INCOMPLETO"
+                cor_alerta = (0, 0, 255)
+
+            alerta = {
+                "tipo": tipo_alerta,
+                "capacete": status_epis["helmet"],
+                "colete": status_epis["vest"],
+                "luvas": status_epis["gloves"],
+                "oculos": status_epis["glasses"],
+                "mascara": status_epis["mask"]
+            }
+
+            # Mostra o alerta no terminal
+            print(alerta)
+
+            # Status final na tela
+            cv2.putText(
+                imagem_resultado,
+                tipo_alerta,
+                (painel_x + 15, y + 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.60,
+                cor_alerta,
+                2
+            )
+
         else:
 
             cv2.putText(
                 imagem_resultado,
-                "EPI INCOMPLETO",
-                (painel_x + 15, y + 10),
+                "NENHUMA PESSOA",
+                (painel_x + 15, painel_y + 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.65,
-                (0, 0, 255),
+                0.55,
+                (0, 255, 255),
                 2
             )
 
-    else:
-
-        cv2.putText(
-            imagem_resultado,
-            "NENHUMA PESSOA",
-            (painel_x + 15, painel_y + 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            (0, 255, 255),
-            2
+        # Mostra a imagem
+        cv2.imshow(
+            "Detector de EPI - Prototipo 4",
+            imagem_resultado
         )
 
-    # Mostra a imagem
-    cv2.imshow(
-        "Detector de EPI - Prototipo 4",
-        imagem_resultado
-    )
+        # Tecla Q para fechar
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
 
-    # Tecla Q para fechar
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
-
-
-camera.release()
-cv2.destroyAllWindows()
+finally:
+    camera.release()
+    cv2.destroyAllWindows()
