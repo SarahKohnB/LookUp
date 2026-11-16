@@ -79,38 +79,6 @@
                 </div>
             </div>
         </section>
-
-
-        <section>
-            <h2>Notificações recentes</h2>
-
-            <div id="notificacoes">
-                {% if notificacoes %}
-                    {% for notificacao in notificacoes %}
-                        <div class="notificacao">
-                            <h3>{{ notificacao.tipo }}</h3>
-
-                            <p>
-                                <strong>Data:</strong>
-                                {{ notificacao.data }}
-                            </p>
-
-                            <div class="epis">
-                                <span>Capacete: {{ notificacao.capacete }}</span>
-                                <span>Colete: {{ notificacao.colete }}</span>
-                                <span>Luvas: {{ notificacao.luvas }}</span>
-                                <span>Óculos: {{ notificacao.oculos }}</span>
-                                <span>Máscara: {{ notificacao.mascara }}</span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="sem-notificacoes">
-                        Nenhuma notificação recebida.
-                    </div>
-                {% endif %}
-            </div>
-        </section>
     </main>
 
     <script>
@@ -137,6 +105,7 @@
                     }
 
                     const geral = document.getElementById("status-geral");
+
                     geral.textContent = dados.tipo || "Aguardando detecção...";
                     geral.className = "status-geral";
 
@@ -164,58 +133,11 @@
                 })
                 .catch(() => {
                     const sistema = document.getElementById("status-sistema");
-                    sistema.textContent = "Não foi possível acessar o servidor";
+
+                    sistema.textContent =
+                        "Não foi possível acessar o servidor";
+
                     sistema.className = "status-offline";
-                });
-        }
-
-        function atualizarNotificacoes() {
-            fetch("/notificacoes")
-                .then(resposta => resposta.json())
-                .then(dados => {
-                    const container = document.getElementById("notificacoes");
-
-                    if (dados.length === 0) {
-                        container.innerHTML =
-                            '<div class="sem-notificacoes">' +
-                            'Nenhuma notificação recebida.</div>';
-                        return;
-                    }
-
-                    container.innerHTML = "";
-
-                    dados.forEach(notificacao => {
-                        const cartao = document.createElement("div");
-                        cartao.className = "notificacao";
-
-                        const titulo = document.createElement("h3");
-                        titulo.textContent = notificacao.tipo;
-
-                        const data = document.createElement("p");
-                        data.textContent = "Data: " + notificacao.data;
-
-                        const epis = document.createElement("div");
-                        epis.className = "epis";
-
-                        const campos = [
-                            ["Capacete", notificacao.capacete],
-                            ["Colete", notificacao.colete],
-                            ["Luvas", notificacao.luvas],
-                            ["Óculos", notificacao.oculos],
-                            ["Máscara", notificacao.mascara]
-                        ];
-
-                        campos.forEach(([nome, valor]) => {
-                            const item = document.createElement("span");
-                            item.textContent = nome + ": " + valor;
-                            epis.appendChild(item);
-                        });
-
-                        cartao.appendChild(titulo);
-                        cartao.appendChild(data);
-                        cartao.appendChild(epis);
-                        container.appendChild(cartao);
-                    });
                 });
         }
 
@@ -226,15 +148,9 @@
             erroVideo.hidden = false;
         });
 
-        video.addEventListener("load", () => {
-            erroVideo.hidden = true;
-        });
-
         atualizarStatus();
-        atualizarNotificacoes();
 
         setInterval(atualizarStatus, 1000);
-        setInterval(atualizarNotificacoes, 2000);
     </script>
 </body>
 </html>

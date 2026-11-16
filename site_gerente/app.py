@@ -1,11 +1,14 @@
 
-from flask import Flask, render_template, render_template_string, jsonify, redirect, Response, request, session, url_for
+from flask import (
+    Flask, render_template, render_template_string,
+    jsonify, redirect, Response, request, session, url_for
+)
 from pathlib import Path
 from datetime import datetime
 from collections import deque
+from functools import wraps
 import threading
 import time
-from functools import wraps
 
 import torch
 import cv2
@@ -16,6 +19,9 @@ app.secret_key = "look-up-chave-escolar-trocar-depois"
 USUARIO_GERENTE = "gerente"
 SENHA_GERENTE = "123456"
 
+# ==========================================
+# LOGIN
+# ==========================================
 
 def login_obrigatorio(funcao):
     @wraps(funcao)
@@ -25,6 +31,7 @@ def login_obrigatorio(funcao):
         return funcao(*args, **kwargs)
     return verificar_login
 
+
 # ==========================================
 # CONFIGURACOES
 # ==========================================
@@ -33,12 +40,11 @@ CONF_MIN = 0.25
 INDICE_CAMERA = 1
 PORTA = 5000
 
-# Analisa os ultimos 8 quadros da camera.
-# O EPI precisa aparecer em pelo menos 3 deles.
 TAMANHO_JANELA = 8
 MINIMO_DETECCOES = 3
 
 PASTA_PROJETO = Path(__file__).resolve().parent.parent
+
 CAMINHO_MODELO = (
     PASTA_PROJETO / "prototipo4" / "prototipo4_ppe.pt"
 )
@@ -59,7 +65,6 @@ nomes_epis = {
     "mask": "Mascara"
 }
 
-# Nomes alternativos que o modelo pode utilizar.
 apelidos = {
     "hard-hat": "helmet",
     "hard_hat": "helmet",
@@ -114,10 +119,6 @@ def adicionar_notificacao(alerta):
         notificacoes.insert(0, notificacao)
         del notificacoes[20:]
 
-
-# ==========================================
-# NORMALIZACAO DOS NOMES
-# ==========================================
 
 def normalizar_nome(nome):
     nome = str(nome).lower().strip()
@@ -179,10 +180,9 @@ def processar_camera():
 
     print("Webcam conectada!")
 
-    # Guarda as deteccoes recentes de cada quadro.
     historico_epis = deque(maxlen=TAMANHO_JANELA)
 
-    # Evita repetir notificacoes iguais continuamente.
+    # Guarda o ultimo estado registrado no historico.
     ultimo_alerta_emitido = None
 
     try:
@@ -199,9 +199,9 @@ def processar_camera():
             epis_detectados = set()
             pessoa_detectada = False
 
-            # --------------------------------------
+            # ----------------------------------
             # LEITURA DAS DETECCOES
-            # --------------------------------------
+            # ----------------------------------
 
             for *caixa, confianca, classe in resultados.xyxy[0].tolist():
 
@@ -222,7 +222,10 @@ def processar_camera():
                 if nome in epis_obrigatorios:
                     epis_detectados.add(nome)
 
-                nome_exibicao = nomes_epis.get(nome, str(nome_original))
+                nome_exibicao = nomes_epis.get(
+                    nome, str(nome_original)
+                )
+
                 texto = f"{nome_exibicao} {confianca:.2f}"
 
                 cv2.rectangle(
@@ -243,9 +246,9 @@ def processar_camera():
                     2
                 )
 
-            # --------------------------------------
+            # ----------------------------------
             # ESTABILIZACAO DAS DETECCOES
-            # --------------------------------------
+            # ----------------------------------
 
             if pessoa_detectada:
                 historico_epis.append(epis_detectados.copy())
@@ -267,7 +270,6 @@ def processar_camera():
                     else:
                         status_epis[epi] = "NAO DETECTADO"
 
-                # Todos os cinco EPIs precisam ser confirmados.
                 if all(
                     status_epis[epi] == "OK"
                     for epi in epis_obrigatorios
@@ -285,29 +287,17 @@ def processar_camera():
                     "mascara": status_epis["mask"]
                 }
 
-                assinatura = tuple(
-                    alerta[chave]
-                    for chave in [
-                        "tipo",
-                        "capacete",
-                        "colete",
-                        "luvas",
-                        "oculos",
-                        "mascara"
-                    ]
-                )
+                # Registra somente quando muda entre completo
+                # e incompleto. Evita repetir o mesmo aviso.
+                if tipo_alerta != ultimo_alerta_emitido:
+                    adicionar_notificacao(alerta)
 
-                # Registra notificacao quando o estado incompleto
-                # aparece ou muda.
-                if tipo_alerta == "EPI INCOMPLETO":
-                    if assinatura != ultimo_alerta_emitido:
-                        adicionar_notificacao(alerta)
-                        print("Alerta registrado:", alerta)
+                    print(
+                        "Mudanca de status registrada:",
+                        alerta
+                    )
 
-                    ultimo_alerta_emitido = assinatura
-
-                else:
-                    ultimo_alerta_emitido = None
+                    ultimo_alerta_emitido = tipo_alerta
 
             else:
                 tipo_alerta = "NENHUMA PESSOA"
@@ -317,11 +307,13 @@ def processar_camera():
                     for epi in epis_obrigatorios
                 }
 
+                # Permite registrar uma nova ocorrencia
+                # quando uma pessoa voltar a ser detectada.
                 ultimo_alerta_emitido = None
 
-            # --------------------------------------
+            # ----------------------------------
             # PAINEL NA IMAGEM
-            # --------------------------------------
+            # ----------------------------------
 
             altura, largura = imagem_resultado.shape[:2]
 
@@ -389,9 +381,9 @@ def processar_camera():
                 2
             )
 
-            # --------------------------------------
+            # ----------------------------------
             # ENVIO DA IMAGEM PARA O SITE
-            # --------------------------------------
+            # ----------------------------------
 
             sucesso_jpeg, buffer = cv2.imencode(
                 ".jpg",
@@ -438,9 +430,16 @@ def gerar_video():
         time.sleep(0.03)
 
 
+# ==========================================
+# LOGIN
+# ==========================================
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     erro = ""
+
+    if session.get("gerente_logado"):
+        return redirect(url_for("pagina_inicial"))
 
     if request.method == "POST":
         usuario = request.form.get("usuario", "").strip()
@@ -449,9 +448,11 @@ def login():
         if usuario == USUARIO_GERENTE and senha == SENHA_GERENTE:
             session["gerente_logado"] = True
             return redirect(url_for("pagina_inicial"))
+
         erro = "Usuário ou senha incorretos."
 
-    return render_template_string('''<!DOCTYPE html>
+    return render_template_string('''
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -459,46 +460,118 @@ def login():
     <title>Login - Look Up</title>
     <style>
         * { box-sizing: border-box; }
+
         body {
-            margin: 0; min-height: 100vh; display: flex; align-items: center;
-            justify-content: center; font-family: Arial, sans-serif;
-            background: #f2edfb; color: #29213a;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: #f2edfb;
+            color: #29213a;
         }
+
         .caixa {
-            width: 90%; max-width: 360px; background: white; padding: 32px;
-            border-radius: 14px; box-shadow: 0 8px 28px #25104418;
+            width: 90%;
+            max-width: 360px;
+            background: white;
+            padding: 32px;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px #25104418;
         }
-        h1 { text-align: center; color: #7041ad; margin: 0 0 8px; }
-        .subtitulo { text-align: center; color: #777; margin: 0 0 26px; }
-        label { display: block; margin: 14px 0 6px; font-weight: bold; }
+
+        h1 {
+            text-align: center;
+            color: #7041ad;
+            margin: 0 0 8px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #777;
+            margin: 0 0 26px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 6px;
+            font-weight: bold;
+        }
+
         input {
-            width: 100%; padding: 12px; border: 1px solid #d8d0e4;
-            border-radius: 7px; font-size: 15px;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d8d0e4;
+            border-radius: 7px;
+            font-size: 15px;
         }
+
         button {
-            width: 100%; margin-top: 22px; padding: 12px; border: 0;
-            border-radius: 7px; background: #7041ad; color: white;
-            font-size: 16px; cursor: pointer;
+            width: 100%;
+            margin-top: 22px;
+            padding: 12px;
+            border: 0;
+            border-radius: 7px;
+            background: #7041ad;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
         }
-        button:hover { background: #59328d; }
-        .erro { color: #c62828; text-align: center; margin-top: 14px; }
-        .rodape { text-align: center; color: #777; font-size: 12px; margin-top: 20px; }
+
+        button:hover {
+            background: #59328d;
+        }
+
+        .erro {
+            color: #c62828;
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        .rodape {
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <form class="caixa" method="POST">
         <h1>LOOK UP</h1>
         <p class="subtitulo">Monitoramento de EPIs</p>
+
         <label for="usuario">Usuário</label>
-        <input id="usuario" name="usuario" type="text" placeholder="Digite seu usuário" required autofocus>
+        <input
+            id="usuario"
+            name="usuario"
+            type="text"
+            placeholder="Digite seu usuário"
+            required
+            autofocus
+        >
+
         <label for="senha">Senha</label>
-        <input id="senha" name="senha" type="password" placeholder="Digite sua senha" required>
+        <input
+            id="senha"
+            name="senha"
+            type="password"
+            placeholder="Digite sua senha"
+            required
+        >
+
         <button type="submit">Entrar</button>
-        {% if erro %}<p class="erro">{{ erro }}</p>{% endif %}
+
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+
         <p class="rodape">Acesso restrito ao gerente</p>
     </form>
 </body>
-</html>''', erro=erro)
+</html>
+''', erro=erro)
 
 
 @app.route("/sair")
@@ -506,6 +579,10 @@ def sair():
     session.clear()
     return redirect(url_for("login"))
 
+
+# ==========================================
+# VIDEO PROTEGIDO
+# ==========================================
 
 @app.route("/video_feed")
 @login_obrigatorio
@@ -574,10 +651,14 @@ if __name__ == "__main__":
         target=processar_camera,
         daemon=True
     )
-
     thread_detector.start()
 
-    print(f"Site: http://127.0.0.1:{PORTA}")
+    print("\n===================================")
+    print("          SISTEMA LOOK UP")
+    print("===================================")
+    print("TELA DE LOGIN:")
+    print(f"http://127.0.0.1:{PORTA}/login")
+    print("===================================\n")
 
     app.run(
         host="0.0.0.0",
