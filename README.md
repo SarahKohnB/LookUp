@@ -50,7 +50,7 @@ Esta seção será utilizada para apresentar capturas de tela da aplicação em 
 
 <!-- Adicione aqui o print da tela de login. -->
 
-![Tela de login](./prints/tela-login.png)
+![Tela de login](./images/login.png)
 
 ### 2. Tela Mobile (Com Aviso)
 
