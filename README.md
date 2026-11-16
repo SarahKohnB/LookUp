@@ -173,43 +173,107 @@ Fluxo de funcionamento:
 
 ## 💻 Como executar o projeto
 
-### 1. Pré-requisitos
+### 1. Abrir o projeto
 
-Antes de executar o sistema, é necessário ter instalado:
+1. Conecte a webcam ao computador.
+2. Abra o Visual Studio Code.
+3. Clique em **Arquivo → Abrir Pasta** e selecione a pasta principal `LookUp`.
+4. Abra o terminal do VS Code em **Terminal → Novo Terminal**.
 
-- Python;
-- Visual Studio Code ou outro editor de código;
-- Uma webcam;
-- As dependências utilizadas pelo projeto;
-- Os arquivos do modelo de Inteligência Artificial.
+### 2. Preparar o Python (somente se necessário)
 
-### 2. Instalar as dependências
-
-Abra o terminal na pasta do projeto e execute os comandos abaixo, conforme as bibliotecas utilizadas no ambiente:
+Verifique se o Python 3.12 está instalado:
 
 ```bash
-py -m pip install opencv-python
-py -m pip install flask
-py -m pip install torch torchvision
-py -m pip install ultralytics
+py -3.12 --version
 ```
 
-**Observação:** os comandos acima instalam as bibliotecas listadas, mas o modelo utilizado também pode depender de uma versão específica do PyTorch ou de outras dependências. Se o projeto possuir um arquivo `requirements.txt`, prefira instalar as versões definidas nele.
+Caso o comando `pip` não esteja disponível, execute:
 
-### 3. Executar o sistema
+```bash
+py -3.12 -m ensurepip --upgrade
+```
 
-Abra a pasta do projeto no Visual Studio Code e execute a aplicação pelo terminal, utilizando o arquivo principal do sistema.
+Atualize o pip:
+
+```bash
+py -3.12 -m pip install --upgrade pip
+```
+
+### 3. Instalar as bibliotecas (somente na primeira configuração do computador)
+
+Execute os comandos abaixo, um de cada vez:
+
+```bash
+py -3.12 -m pip install opencv-python
+```
+
+```bash
+py -3.12 -m pip install flask
+```
+
+```bash
+py -3.12 -m pip install torch torchvision
+```
+
+```bash
+py -3.12 -m pip install ultralytics
+```
+
+```bash
+py -3.12 -m pip install pandas
+```
+
+```bash
+py -3.12 -m pip install pyyaml
+```
+
+### 4. Iniciar o sistema Look Up
+
+Com o terminal aberto na pasta principal do projeto, entre na pasta `site_gerente`:
+
+```bash
+cd site_gerente
+```
+
+Agora execute a aplicação:
 
 ```bash
 py app.py
 ```
 
-Se o arquivo principal possuir outro nome, substitua `app.py` pelo nome correto.
+Aguarde o carregamento do modelo de Inteligência Artificial e a conexão com a webcam.
 
-Depois, acesse no navegador o endereço local informado no terminal pela aplicação Flask.
+### 5. Acessar o sistema
 
-> Para executar a detecção diretamente pelo protótipo de webcam, o comando utilizado no protótipo 4 é `py teste_prototipo4.py`, executado na pasta correspondente.
+Quando o servidor iniciar, abra o navegador e acesse:
 
+```text
+http://127.0.0.1:5000/login
+```
+
+**Dados de acesso:**
+
+- Usuário: `gerente`
+- Senha: `123456`
+
+### 6. Encerrar o sistema
+
+Quando terminar de utilizar o projeto, volte ao terminal do VS Code e pressione:
+
+```text
+Ctrl + C
+```
+
+Isso encerra a execução do servidor.
+
+### Observações importantes
+
+- Os comandos de instalação das bibliotecas precisam ser executados apenas na primeira configuração do computador.
+- Nos próximos usos, basta abrir o projeto, entrar na pasta `site_gerente` pelo terminal e executar `py app.py`.
+- A webcam externa deve estar conectada antes de iniciar o sistema.
+- O arquivo do modelo de IA deve permanecer na pasta `prototipo4`, com o nome `prototipo4_ppe.pt`.
+- Enquanto o sistema estiver funcionando, o terminal precisa permanecer aberto.
 ## 📁 Organização dos arquivos
 
 A estrutura pode variar conforme a organização atual do repositório. Uma sugestão para organizar os arquivos é:
